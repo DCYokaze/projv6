@@ -41,6 +41,8 @@ std::map<std::string,long> map_sl;
   n = 4   last size is 24934745
 */
 
+// NG = N-gram
+
 std::vector<std::string> CleanLastDash( std::vector<std::string> sv )
 {
   for(int j=0;j<sv.size();j++){
@@ -104,7 +106,6 @@ int ASM::countAllngramPossFound()// called before ...
 
   return map_sl.size();
 }
-
 
 int ASM::countAllBasicBlock()// called before write arff, Append BB to all of them.
 {
@@ -197,7 +198,6 @@ int ASM::exportBasicBlockFastProcess()
   }
   oFile.close();
 
-
   for(int i=0;i<vectorOfFile.size();i++)
   {
     std::map<std::string,long> map_local;
@@ -235,6 +235,7 @@ int ASM::exportBasicBlockFastProcess()
     oFile.close();
   }
   map_forCopy.clear();
+  return 0;
 }
 
 int ASM::fastReadDataBB(int ** arr,std::vector <std::string> vect)//(std::map <string,int*> & m)
@@ -321,8 +322,6 @@ int ASM::exportNgramFastProcess()
   }
   oFile.close();
 
-
-
   for(int i=0;i<vectorOfFile.size();i++){
     string fileName = vectorOfFile[i];
     std::map<std::string,long> map_local;
@@ -358,9 +357,8 @@ int ASM::exportNgramFastProcess()
     oFile.close();
   }
   map_forCopy.clear();
+  return 0;
 }
-
-
 
 //to use them in calculate tf-idf
 //called after countAllBasicBlock
@@ -382,6 +380,7 @@ int ASM::getSizeBB(string fileName)
   iFile.close();
   return size;
 }
+
 int ASM::getSizeNG(string fileName)
 {
   int n = config.n;
@@ -404,6 +403,8 @@ int ASM::getSizeNG(string fileName)
   iFile.close();
   return size;
 }
+
+/*
 int ASM::TfidfToFileNG(long batchSize)
 {
   std::setprecision(12);
@@ -423,9 +424,9 @@ int ASM::TfidfToFileNG(long batchSize)
   int * docLen = new int[dataSetSize];
   for(int i=0;i<dataSetSize;i++){
     docLen[i] = getSizeNG(vectorOfFile[i])+1;
-    /*
-    if(docLength[i]==0)
-      cout<<"ALERT ALL ZEROS "<<vectorOfFile[i]<<endl;*/
+    
+    // if(docLength[i]==0)
+    //   cout<<"ALERT ALL ZEROS "<<vectorOfFile[i]<<endl;
   }
   int iEnd = svect.size();
   std::vector<attrValue> newVect;
@@ -515,28 +516,15 @@ int ASM::TfidfToFileNG(long batchSize)
     oFile<<newVect[i].val<<endl;
   }
   oFile.close();
-
-
-
-  /*
-  for(long progress=0;progress < iEnd;progress+=batchSize){
-    std::map <string,int*> m;
-    for(int i=0;((i+progress) < iEnd) && (i<batchSize);i++){
-      m[svect[i+progress]] = new int[dataSetSize];
-      cout<<svect[i+progress]<<endl;
-      cout<<(i+progress)<<endl;
-    }
-
-    for(int i=0;((i+progress) < iEnd) && (i<batchSize);i++){
-      delete [] m[svect[i+progress]];
-    }
-  }*/
   for(int i=0;i<dataSetSize;i++){
     delete [] arr[i];
   }
   delete [] arr;
   delete [] docLen;
+  return 0;
 }
+//*/
+/*
 int ASM::TfidfToFileBB(long batchSize)
 {
   std::setprecision(12);
@@ -556,9 +544,9 @@ int ASM::TfidfToFileBB(long batchSize)
   int * docLen = new int[dataSetSize];
   for(int i=0;i<dataSetSize;i++){
     docLen[i] = getSizeBB(vectorOfFile[i])+1;
-    /*
-    if(docLength[i]==0)
-      cout<<"ALERT ALL ZEROS "<<vectorOfFile[i]<<endl;*/
+    
+    // if(docLength[i]==0)
+    //   cout<<"ALERT ALL ZEROS "<<vectorOfFile[i]<<endl;
   }
   int iEnd = svect.size();
   std::vector<attrValue> newVect;
@@ -648,27 +636,15 @@ int ASM::TfidfToFileBB(long batchSize)
   }
   oFile.close();
 
-
-
-  /*
-  for(long progress=0;progress < iEnd;progress+=batchSize){
-    std::map <string,int*> m;
-    for(int i=0;((i+progress) < iEnd) && (i<batchSize);i++){
-      m[svect[i+progress]] = new int[dataSetSize];
-      cout<<svect[i+progress]<<endl;
-      cout<<(i+progress)<<endl;
-    }
-
-    for(int i=0;((i+progress) < iEnd) && (i<batchSize);i++){
-      delete [] m[svect[i+progress]];
-    }
-  }*/
   for(int i=0;i<dataSetSize;i++){
     delete [] arr[i];
   }
   delete [] arr;
   delete [] docLen;
+  return 0;
 }
+//*/
+
 //for the top 20k
 int ASM::writeFsarffBB()
 {
@@ -779,6 +755,7 @@ int ASM::writeARFFFileThreshFreq(int attrNum)//trim the attr into attrNum, Sorte
     return 1;
   }
   oFile.close();
+  return 0;
 }
 
 double ASM::arffToWeka(string fileInName,int classifier)
@@ -836,7 +813,6 @@ double ASM::arffToWeka(string fileInName,int classifier)
   // java weka.Run -no-scan weka.classifiers.lazy.KStar -B 10 -M a -t "C:\cygwin64\home\DCMote\_copy_oldDoc\v_proj\SP2\FileBackup\ARFF2\hex\lastPack_swap128.arff"
   return result;
 }
-
 
 int ASM::getFileList()
 {
@@ -988,6 +964,7 @@ std::vector<std::string> ASM::StringSplit(const std::string &source, const char 
   }
   return results;
 }
+
 /*
 int ASM::isASMAble()
 {
@@ -1099,23 +1076,23 @@ int ASM::fsToArff(string fsName, int attrNum, int n)
       // sset.insert(line);
       svect.push_back(line);
       aNum++;
-      buf+="@attribute \"";
-      buf+=line;
-      buf+="\" numeric";
-      buf+='\n';
+      buf += "@attribute \"";
+      buf += line;
+      buf += "\" numeric";
+      buf += '\n';
       getline(iFile,line);//flush 1 out.
     }
   }
   else{
-    cout<<"failed open file "<<fsName<<endl;
+    cout << "failed open file " << fsName << endl;
     return 1;
   }
   iFile.close();
   std::sort(svect.begin(),svect.end());
-  buf+="@attribute isVirus {0,1}";
-  buf+='\n';
-  buf+="@data";
-  buf+='\n';
+  buf += "@attribute isVirus {0,1}";
+  buf += '\n';
+  buf += "@data";
+  buf += '\n';
 
   if(svect.size() != attrNum){
     cout<<"(svect.size() != attrNum)"<<endl;
@@ -1188,5 +1165,11 @@ int ASM::fsToArff(string fsName, int attrNum, int n)
     cout<<"problem open out file"<<endl;
   }
   oFile.close();
+  return 0;
+}
+
+
+int main(){
+  cout<<"test01"<<endl;
   return 0;
 }

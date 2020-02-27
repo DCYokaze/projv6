@@ -13,19 +13,6 @@
 #include <set>
 #include "stdpatch.h"
 
-/*
-struct attrValue// attribute with value from feature selection
-{
-public:
-  std::string name;
-  double val;//value from weka
-  bool operator < (const attrValue& rhs) const
-  {
-    return (val > rhs.val);
-  }
-  //int lengthExtractable;// If extracted and less than this value, it's mean failed to extract feature.
-};
-*/
 struct attrValue// attribute with value from feature selection
 {
 public:
