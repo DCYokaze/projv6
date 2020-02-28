@@ -13,33 +13,34 @@
 #include <set>
 #include "stdpatch.h"
 
-struct attrValue// attribute with value from feature selection
+struct attrValue // attribute with value from feature selection
 {
 public:
   std::string name;
-  double val;//value from weka
-  bool operator < (const attrValue& rhs) const
+  double val; //value from weka
+  bool operator<(const attrValue &rhs) const
   {
     return (val > rhs.val);
   }
   //int lengthExtractable;// If extracted and less than this value, it's mean failed to extract feature.
 };
-class ASM{
+class ASM
+{
 public:
-  struct// configuration
+  struct // configuration
   {
     //public:
     std::string fileList;
     // int byteLength;
     // int shift;
-    long step;//this used in attr selection.
-    int lengthExtractable;// If extracted and less than this value, it's mean failed to extract feature.
+    long step;             //this used in attr selection.
+    int lengthExtractable; // If extracted and less than this value, it's mean failed to extract feature.
     //more for ASM?
-    int type;//0=basic block (ignore step), 1=n-gram
-    int n;//from n-gram
-    int shift;//this must be less or equal n
+    int type;  //0=basic block (ignore step), 1=n-gram
+    int n;     //from n-gram
+    int shift; //this must be less or equal n
     int simplify;
-  }config;
+  } config;
 
 public:
   /*
@@ -56,35 +57,33 @@ public:
   std::vector<std::string> inline StringSplit(const std::string &source, const char *delimiter = " ", bool keepEmpty = false);
   //int genARFFFileAsm(string ,int );
   //std::vector<std::string> CleanLastDash(std::vector<std::string>);
-// private: 
+  // private:
   std::vector<std::string> vectorOfFile;
-  
-  
+
   int countAllBasicBlock();
   int writeARFFFileThreshFreq(int);
   int writeARFFFileBaseLine01();
-  double arffToWeka(std::string,int);
-  
+  double arffToWeka(std::string, int);
+
   //int isASMAble();
-  
-  
+
   //ASMn
-  
+
   int countAllngramPossFound();
-  
+
   int exportObjasmToPcd();
 
   int getSizeBB(std::string);
   int getSizeNG(std::string);
-  int TfidfToFileBB(long );
-  int TfidfToFileNG(long );
-  int writeFsarffBB();
+  //int TfidfToFileBB(long );
+  //int TfidfToFileNG(long );
+  //int writeFsarffBB();
   int exportBasicBlockFastProcess();
-  int fastReadDataBB(int **, std::vector <std::string>);
+  int fastReadDataBB(int **, std::vector<std::string>);
   int exportNgramFastProcess();
-  int fastReadDataNG(int **, std::vector <std::string>);
+  int fastReadDataNG(int **, std::vector<std::string>);
 
-  int fsToArff(std::string,int,int);
+  int fsToArff(std::string, int, int);
 };
 
 /*
@@ -93,7 +92,5 @@ public:
  simple - To remove all profix
 //*/
 // std::set<std::string> sset;
-
-
 
 #endif //_ASM_H_
