@@ -8,7 +8,7 @@
 #include <vector>
 #include <stdlib.h>
 #include <iomanip>
-#include "HS.h"
+#include "hs.h"
 #include "stdpatch.h"
 #include <time.h>
 #include <unistd.h>

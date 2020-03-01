@@ -10,7 +10,7 @@
 #include <map>
 #include <set>
 #include "stdpatch.h"
-#include "ASM.h"
+#include "asm.h"
 #include <time.h>
 using namespace patch;
 using namespace std;
