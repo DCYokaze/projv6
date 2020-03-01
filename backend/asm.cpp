@@ -35,6 +35,7 @@ using namespace std;
 //set of opcode
 std::map<std::string, long> map_sl;
 /*
+  data from 2018
   n = 1   last size is 1365
   n = 2   last size is 165163
   n = 3   last size is 3939756
@@ -121,10 +122,11 @@ int ASM::countAllBasicBlock() // called before write arff, Append BB to all of t
   int countbb = 0;
   for (int i = 0; i < vectorOfFile.size(); i++)
   {
-    //cout<<"file..."<<i<<endl;
     string fileName = vectorOfFile[i]; //don't mind the type of file ATM
     string longLine = fileNameToLongAsmV2BB(fileName);
     // longLine = preprocForBasicBlock(longLine);
+    D(fileName);
+    D(longLine);
     if (longLine.length() < config.lengthExtractable) //ADDITION PROTECTION
       continue;
     vector<string> sv = StringSplit(longLine, FLOWCHANGE);
@@ -439,254 +441,6 @@ int ASM::getSizeNG(string fileName)
   return size;
 }
 
-/*
-int ASM::TfidfToFileNG(long batchSize)
-{
-  std::setprecision(12);
-  int dataSetSize = vectorOfFile.size();
-  //vector to easier list the attr
-  std::vector <string> svect;
-  ifstream iFile;
-  iFile.open(("OutARFF/asm_n"+patch::to_string(config.n)+"gram_meta").c_str());
-  if(iFile.is_open()){
-    string line;
-    while(getline(iFile,line)){
-      svect.push_back(line);
-      map_sl[line]=0;
-    }
-  }
-  iFile.close();
-  int * docLen = new int[dataSetSize];
-  for(int i=0;i<dataSetSize;i++){
-    docLen[i] = getSizeNG(vectorOfFile[i])+1;
-    
-    // if(docLength[i]==0)
-    //   cout<<"ALERT ALL ZEROS "<<vectorOfFile[i]<<endl;
-  }
-  int iEnd = svect.size();
-  std::vector<attrValue> newVect;
-  int ** arr = new int*[dataSetSize];
-  for(int i=0;i<dataSetSize;i++){
-    arr[i] = new int[batchSize]();
-  }
-  for(long progress=0;progress < iEnd;progress+=batchSize){
-    cout<<"progress = "<<progress<<endl;
-    cout<<commonLib::exec("date");
-    for(int i=0;i<dataSetSize;i++){
-      std::fill(arr[i],arr[i] + batchSize, 0);
-      //readFromNgedsArr(arr[i],vectorOfFile[i] , bytes, lStart, batchSize, FileLinePointing[i] );
-    }
-    std::vector <string> vect;
-    for(int j=0;((j+progress) < iEnd) && (j<batchSize);j++){
-      vect.push_back(svect[j+progress]);
-      // cout<<svect[j+progress]<<endl;
-      // cout<<(j+progress)<<endl;
-    }
-    int thisBatchSize = vect.size();
-
-    fastReadDataNG(arr, vect);
-    cout<<"whatM"<<endl;
-
-
-    cout<<"start calculate column with word"<<endl;
-    int * sumColWithTheWord = new int[thisBatchSize]();
-    std::fill(sumColWithTheWord, sumColWithTheWord+thisBatchSize, 0);
-    for(int i=0;i<dataSetSize;i++){
-      for(int j=0;j<thisBatchSize;j++){
-        if(arr[i][j] > 0){
-          sumColWithTheWord[j]++;
-        }
-      }
-    }
-
-    cout<<"start calculate tfidf with word"<<endl;
-    double * diffTfidfArr = new double[thisBatchSize];
-    for(int j=0;j<thisBatchSize;j++){
-      if(sumColWithTheWord[j] == 0){
-        diffTfidfArr[j] = 0.0;
-        continue;
-      }
-      double sumClass0 = 0.0;
-      double sumClass1 = 0.0;
-      for(int i=0;i<dataSetSize;i++){
-        double tf = (double)arr[i][j]/docLen[i];
-        double idf = log((double)dataSetSize/sumColWithTheWord[j]);
-        double tfidf = tf*idf;
-        if(i<NUMCLASS0)
-          sumClass0 += tfidf;
-        else
-          sumClass1 += tfidf;
-      }
-      double meanClass0 = sumClass0/NUMCLASS0;
-      double meanClass1 = sumClass1/NUMCLASS1;
-      if(meanClass0>meanClass1)
-        diffTfidfArr[j] = meanClass0-meanClass1;
-      else
-        diffTfidfArr[j] = meanClass1-meanClass0;
-    }
-
-    delete [] sumColWithTheWord;
-    cout<<"start add attrValue"<<endl;
-
-    for(int j=0;j<thisBatchSize;j++){
-      attrValue a;
-      a.name = vect[j];
-      a.val = 100000*diffTfidfArr[j];//100000 just to make them bigger and easier when merge
-      newVect.push_back(a);
-    }
-    delete [] diffTfidfArr;
-
-    cout<<"start sort attrValue"<<endl;
-    std::sort(newVect.begin(), newVect.end());
-    if(newVect.size()>20002)
-      newVect.erase(newVect.begin()+20000,newVect.end());
-  }
-  cout<<"start write file, a few minutes ^^.";
-  ofstream oFile;
-  // string sFileName = "OutARFF/tfidf_asm_n"+patch::to_string(config.n)+"gram.fsarff";
-  string sFileName = "OutARFF/tfidf_asm_n"+patch::to_string(config.n)+"gram_b"+patch::to_string(batchSize)+".fsarff";
-  oFile.open(sFileName.c_str());
-  for(int i=0;i<newVect.size();i++){
-    oFile<<newVect[i].name<<endl;
-    oFile<<newVect[i].val<<endl;
-  }
-  oFile.close();
-  for(int i=0;i<dataSetSize;i++){
-    delete [] arr[i];
-  }
-  delete [] arr;
-  delete [] docLen;
-  return 0;
-}
-//*/
-/*
-int ASM::TfidfToFileBB(long batchSize)
-{
-  std::setprecision(12);
-  int dataSetSize = vectorOfFile.size();
-  //vector to easier list the attr
-  std::vector <string> svect;
-  ifstream iFile;
-  iFile.open("OutARFF/asm_basicblock_meta");
-  if(iFile.is_open()){
-    string line;
-    while(getline(iFile,line)){
-      svect.push_back(line);
-      map_sl[line]=0;
-    }
-  }
-  iFile.close();
-  int * docLen = new int[dataSetSize];
-  for(int i=0;i<dataSetSize;i++){
-    docLen[i] = getSizeBB(vectorOfFile[i])+1;
-    
-    // if(docLength[i]==0)
-    //   cout<<"ALERT ALL ZEROS "<<vectorOfFile[i]<<endl;
-  }
-  int iEnd = svect.size();
-  std::vector<attrValue> newVect;
-  int ** arr = new int*[dataSetSize];
-  for(int i=0;i<dataSetSize;i++){
-    arr[i] = new int[batchSize]();
-  }
-  for(long progress=0;progress < iEnd;progress+=batchSize){
-    cout<<"progress = "<<progress<<endl;
-    cout<<commonLib::exec("date");
-    for(int i=0;i<dataSetSize;i++){
-      std::fill(arr[i],arr[i] + batchSize, 0);
-      //readFromNgedsArr(arr[i],vectorOfFile[i] , bytes, lStart, batchSize, FileLinePointing[i] );
-    }
-    std::vector <string> vect;
-    for(int j=0;((j+progress) < iEnd) && (j<batchSize);j++){
-      vect.push_back(svect[j+progress]);
-      // cout<<svect[j+progress]<<endl;
-      // cout<<(j+progress)<<endl;
-    }
-    int thisBatchSize = vect.size();
-
-    fastReadDataBB(arr, vect);
-    cout<<"whatM"<<endl;
-
-
-    cout<<"start calculate column with word"<<endl;
-    int * sumColWithTheWord = new int[thisBatchSize]();
-    std::fill(sumColWithTheWord, sumColWithTheWord+thisBatchSize, 0);
-    for(int i=0;i<dataSetSize;i++){
-      for(int j=0;j<thisBatchSize;j++){
-        if(arr[i][j] > 0){
-          sumColWithTheWord[j]++;
-        }
-      }
-    }
-
-    cout<<"start calculate tfidf with word"<<endl;
-    double * diffTfidfArr = new double[thisBatchSize];
-    for(int j=0;j<thisBatchSize;j++){
-      if(sumColWithTheWord[j] == 0){
-        diffTfidfArr[j] = 0.0;
-        continue;
-      }
-      double sumClass0 = 0.0;
-      double sumClass1 = 0.0;
-      for(int i=0;i<dataSetSize;i++){
-        double tf = (double)arr[i][j]/docLen[i];
-        double idf = log((double)dataSetSize/sumColWithTheWord[j]);
-        double tfidf = tf*idf;
-        if(i<NUMCLASS0)
-          sumClass0 += tfidf;
-        else
-          sumClass1 += tfidf;
-      }
-      double meanClass0 = sumClass0/NUMCLASS0;
-      double meanClass1 = sumClass1/NUMCLASS1;
-      if(meanClass0>meanClass1)
-        diffTfidfArr[j] = meanClass0-meanClass1;
-      else
-        diffTfidfArr[j] = meanClass1-meanClass0;
-    }
-
-    delete [] sumColWithTheWord;
-    cout<<"start add attrValue"<<endl;
-
-    for(int j=0;j<thisBatchSize;j++){
-      attrValue a;
-      a.name = vect[j];
-      a.val = 100000*diffTfidfArr[j];//100000 just to make them bigger and easier when merge
-      newVect.push_back(a);
-    }
-    delete [] diffTfidfArr;
-
-    std::sort(newVect.begin(), newVect.end());
-    if(newVect.size()>20002)
-      newVect.erase(newVect.begin()+20000,newVect.end());
-  }
-
-  cout<<"start write file, a few minutes ^^.";
-  ofstream oFile;
-  string sFileName = "OutARFF/tfidf_asm_basicblock.fsarff";
-  oFile.open(sFileName.c_str());
-  for(int i=0;i<newVect.size();i++){
-    oFile<<newVect[i].name<<endl;
-    oFile<<newVect[i].val<<endl;
-  }
-  oFile.close();
-
-  for(int i=0;i<dataSetSize;i++){
-    delete [] arr[i];
-  }
-  delete [] arr;
-  delete [] docLen;
-  return 0;
-}
-//*/
-
-//for the top 20k
-/*
-int ASM::writeFsarffBB()
-{
-  return 0;
-}
-*/
 bool sort_pred(const pair<std::string, long> &left, const pair<std::string, long> &right)
 {
   if (left.second == right.second)
@@ -800,79 +554,6 @@ int ASM::writeARFFFileThreshFreq(int attrNum) //trim the attr into attrNum, Sort
   }
   oFile.close();
   return 0;
-}
-
-double ASM::arffToWeka(string fileInName, int classifier)
-{
-  double result = -1;
-  std::string command = "java " + MEMORY_FOR_JAVA;
-#ifdef ON_DIGITALOCEAN
-  command += " -cp /root/weka-3-7-13/weka.jar ";
-#else
-  command += " ";
-#endif
-  command += "weka.Run -no-scan ";
-  // std::string command = "java -cp /root/weka-3-7-13/weka.jar weka.Run -no-scan ";
-  switch (classifier)
-  {
-  case 1:
-    command += "weka.classifiers.trees.J48 ";
-    break;
-  case 2:
-    command += "weka.classifiers.trees.RandomForest -I 100 -K 0 -S 1 -num-slots 1 ";
-    break;
-  case 3:
-    command += "weka.classifiers.functions.LibSVM -C 0.25 -M 2 ";
-    break;
-  case 4:
-    command += "weka.classifiers.functions.MultilayerPerceptron -L 0.3 -M 0.2 -N 500 -V 0 -S 0 -E 20 -H a ";
-    break;
-  case 5:
-    command += "weka.classifiers.rules.JRip -F 3 -N 2.0 -O 2 -S 1 ";
-    break;
-  case 6:
-    command += "weka.classifiers.bayes.NaiveBayes ";
-    break;
-  case 7:
-    command += "weka.classifiers.bayes.NaiveBayesMultinomial ";
-    break;
-  case 8:
-    command += "weka.classifiers.lazy.KStar -B 10 -M a ";
-    break;
-    // default:break;
-  }
-  command += "-t ";
-  // command += fileInName;
-  command += "\"" + fileInName + "\"";
-
-  // cout<<command<<endl;
-  string resWeka = commonLib::exec(command);
-  // cout<<resWeka<<endl;
-  string fileOutName = fileInName + "_c" + patch::to_string(classifier);
-  ofstream oFile;
-  oFile.open(fileOutName.c_str());
-  oFile << resWeka << endl;
-  oFile.close();
-
-  std::istringstream f(resWeka);
-  string line;
-  while (std::getline(f, line))
-  {
-    if (line.find("Stratified cross-validation") != std::string::npos)
-    {
-      std::getline(f, line);
-      std::getline(f, line);
-      // cout<<line<<endl;
-      std::vector<std::string> vStr = commonLib::StringSplit(line);
-      result = strtod(vStr[4].c_str(), NULL);
-      //should got it here.
-      break;
-    }
-  }
-
-  //java -cp /root/weka-3-7-13/weka.jar weka.core.WekaPackageManager
-  // java weka.Run -no-scan weka.classifiers.lazy.KStar -B 10 -M a -t "C:\cygwin64\home\DCMote\_copy_oldDoc\v_proj\SP2\FileBackup\ARFF2\hex\lastPack_swap128.arff"
-  return result;
 }
 
 int ASM::getFileList()
@@ -1269,8 +950,10 @@ int ASM::fsToArff(string fsName, int attrNum, int n)
   return 0;
 }
 
+/*
 int main()
 {
   cout << "test01" << endl;
   return 0;
 }
+*/

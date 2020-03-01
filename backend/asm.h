@@ -43,14 +43,9 @@ public:
   } config;
 
 public:
-  /*
-  std::string fileNameToLongAsm(std::string);
-  std::string fileNameToLongAsmV2(std::string);
-  //*/
   std::string fileNameToLongAsmV2NG(std::string);
   std::string fileNameToLongAsmV2BB(std::string);
   std::string lineToAsmSymbol(std::string);
-  // std::string lineToAsmnSymbol(std::string);
   int filterFlowChange(std::string);
   int getFileList();
   // std::vector<std::string> inline StringSplit(const std::string &, const char *, bool );
@@ -63,7 +58,7 @@ public:
   int countAllBasicBlock();
   int writeARFFFileThreshFreq(int);
   int writeARFFFileBaseLine01();
-  double arffToWeka(std::string, int);
+  //double arffToWeka(std::string, int);
 
   //int isASMAble();
 

@@ -16,9 +16,9 @@ app.config['MAX_CONTENT_LENGTH'] = 4 * 1024 * 1024
 
 
 def allowed_file(filename):
-	return True #get all file for now.
+	return True  # get all file for now.
 	#return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
-	
+
 @app.route('/')
 def upload_form():
 	return render_template('upload.html')
@@ -26,7 +26,7 @@ def upload_form():
 @app.route('/', methods=['POST'])
 def upload_file():
 	if request.method == 'POST':
-        # check if the post request has the file part
+    # check if the post request has the file part
 		if 'file' not in request.files:
 			flash('No file part')
 			return redirect(request.url)
@@ -35,7 +35,7 @@ def upload_file():
 			flash('No file selected for uploading')
 			return redirect(request.url)
 		if file and allowed_file(file.filename):
-			filename = secure_filename(file.filename)
+			# filename = secure_filename(file.filename)
 			#file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
 			file.save(os.path.join(app.config['UPLOAD_FOLDER'], "save.exe"))
 			flash('File successfully uploaded')

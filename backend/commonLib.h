@@ -1,5 +1,15 @@
 #ifndef _COMMONLIB_H_
 #define _COMMONLIB_H_
+
+#define D(x) DEBUG(x)
+#ifdef NDEBUG
+#define DEBUG(x) 
+#else
+#define DEBUG(x) do { std::cerr << x << std::endl; } while (0)
+#endif
+
+
+
 #include <string>
 #include <fstream>
 #include <iostream>
