@@ -734,6 +734,19 @@ int ASM::isASMAble()
   return 0;
 }
 */
+int ASM::objdumpToFile()
+{
+  //listdataset_raw to listdataset_objasm
+  ifstream iFile;
+  iFile.open("./listdataset_raw");
+  ofstream oFile;
+  oFile.open("./listdataset_objasm");
+  if (iFile.is_open() && oFile.is_open())
+  {
+  }
+  iFile.close();
+  oFile.close();
+}
 int ASM::exportObjasmToPcd() //export all of them
 {
   //int i=0;
@@ -744,8 +757,7 @@ int ASM::exportObjasmToPcd() //export all of them
     string fileNameObjasm;
     while (std::getline(iFile, fileNameObjasm))
     {
-      cout << "exportObjasmToPcd " + fileNameObjasm << endl;
-
+      D("exportObjasmToPcd " + fileNameObjasm);
       ifstream iFileObjasm;
       iFileObjasm.open(fileNameObjasm.c_str());
       //string longLine = "";//i++;
@@ -756,8 +768,8 @@ int ASM::exportObjasmToPcd() //export all of them
         string line;
         while (std::getline(iFileObjasm, line))
         {
-          // cout<<line<<endl;
-          // cout<<"     "<<lineToAsmSymbol(line)<<endl;
+          D(line);
+          D("     " << lineToAsmSymbol(line));
           string incSymbol = lineToAsmSymbol(line);
           if (incSymbol.compare(INTERSECTION) == 0)
           {
