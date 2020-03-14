@@ -1,4 +1,7 @@
 binary_raw/
+output_*/
 doasm
-listdataset_objasm
+listdataset_*
+a
+b
 

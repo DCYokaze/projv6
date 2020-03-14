@@ -51,15 +51,16 @@ int main(int argc, char *argv[]) {
 */
   int comm = -1;  // strtol(input.c_str(),NULL,10);
   // int batchSize = 65536;
-  if (argc == 1)  // print help
-  {
+
+  if (argc == 1) {
+    // print help
     cout << "CHOOSE MODE" << endl;
     cout << "1 = countAllBasicBlock" << endl;
     cout << "2 = exportFastBasicBlock" << endl;
     cout << "11 = exportObjasmToPcd()" << endl;
     cout << "12 = countAllBasicBlock()" << endl;
-  } else if (argc == 2)  // assign input to the variable, seperate by case
-  {
+  } else if (argc == 2) {
+    // assign input to the variable, seperate by case
     comm = strtol(argv[1], NULL, 10);
     // batchSize = strtol(argv[2], NULL, 10);
   } else {
@@ -69,20 +70,20 @@ int main(int argc, char *argv[]) {
   cout << commonLib::exec("date");
 
   switch (comm) {
-    case 1:  // run Evaluate only 1 case
-    {
+    case 1: {
+      // run Evaluate only 1 case
       int found = a1.countAllBasicBlock();
-      cout << found << endl;
+      cout << "found = " << found << endl;
     } break;
 
-    case 2:  // run Evaluate only 1 case
-    {
-      a1.countAllBasicBlock();
-      a1.exportBasicBlockFastProcess();
+    case 2: {
+      a1.countAllBasicBlock();           // init the list ->
+      a1.exportBasicBlockFastProcess();  // to get asm_basicblock_meta
     } break;
 
     case 11: {
-      a1.exportObjasmToPcd();
+      a1.objdumpToFile();      // to get .D
+      a1.exportObjasmToPcd();  // to get .pcd_ng and .pcd_bb
     } break;
 
     case 12: {
@@ -96,6 +97,12 @@ int main(int argc, char *argv[]) {
       a1.countAllngramPossFound() << endl;
       }
       */
+    } break;
+
+    case 90: {
+      a1.ToFsarffBB(1000);// consume asm_basicblock_meta to get fsarff
+      // a1.fsToArff("output_csv/asm_basicblock.fsarff",8192,0);
+      a1.fsToArff("output_csv/asm_basicblock_meta", 8192, 0);
     } break;
 
     default:

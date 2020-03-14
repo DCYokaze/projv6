@@ -72,15 +72,15 @@ class ASM {
 
   int getSizeBB(std::string);
   int getSizeNG(std::string);
-  // int TfidfToFileBB(long );
-  // int TfidfToFileNG(long );
-  // int writeFsarffBB();
   int exportBasicBlockFastProcess();
   int fastReadDataBB(int **, std::vector<std::string>);
   int exportNgramFastProcess();
   int fastReadDataNG(int **, std::vector<std::string>);
 
   int fsToArff(std::string, int, int);
+  int ToFsarffBB(long);
+  int ToFsarffBB_old(long);
+  int unknow01();
 };
 
 /*

@@ -14,8 +14,11 @@
 #include "commonLib.h"
 #include "stdpatch.h"
 using namespace patch;
-#define FilesList "FilesList"
-#define FilePath "Files"
+// #define FilesList "FilesList"
+// #define FilePath "Files"
+#define LOCATION_RAW "binary_raw"
+#define LOCATION_PCD "output_pcd"
+#define LOCATION_CSV "output_csv"
 #define FLOWCHANGE "[FLC]"
 #define INTERSECTION "[ITS]"  // something like flowchange but not.
 const std::string MEMORY_FOR_JAVA = "-Xmx2048m";
@@ -108,6 +111,7 @@ int ASM::countAllngramPossFound()  // called before ...
 int ASM::countAllBasicBlock()  // called before write arff, Append BB to all of
                                // them.
 {
+  D("----ASM::countAllBasicBlock()----");
   map_sl.clear();
   // first loop to count all
   // to calculate and filter some out in loop 2
@@ -117,12 +121,13 @@ int ASM::countAllBasicBlock()  // called before write arff, Append BB to all of
     string longLine = fileNameToLongAsmV2BB(fileName);
     // longLine = preprocForBasicBlock(longLine);
     D(fileName);
-    D(longLine);
-    if (longLine.length() < config.lengthExtractable)  // ADDITION PROTECTION
+    // D(longLine);
+    if (longLine.length() < config.lengthExtractable)  // ADDITIONAL PROTECTION
       continue;
     vector<string> sv = StringSplit(longLine, FLOWCHANGE);
     sv = CleanLastDash(sv);
     // cout<<"bbNum = "<<countbb<<endl;
+    // D("bbNum = "+ countbb);
     for (int j = 0; j < sv.size(); j++) {
       if (sv[j].length() > 100) {  // a magic number to filter some out.
         continue;
@@ -176,10 +181,14 @@ int ASM::countAllBasicBlock()  // called before write arff, Append BB to all of
 
 // run after countAllBasicBlock
 int ASM::exportBasicBlockFastProcess() {
+  D("----ASM::exportBasicBlockFastProcess()----");
+  D("----Will result into asm_basicblock_meta");
+  // movxxx to mov
+  // cmpxxx to cmp
   std::map<std::string, long> map_forCopy;
 
   ofstream oFile;
-  oFile.open("OutARFF/asm_basicblock_meta");
+  oFile.open("output_csv/asm_basicblock_meta");
   if (oFile.is_open()) {
     string buf = "";
     for (map<string, long>::iterator it = map_sl.begin(); it != map_sl.end();
@@ -230,9 +239,8 @@ int ASM::exportBasicBlockFastProcess() {
   return 0;
 }
 
-int ASM::fastReadDataBB(
-    int **arr, std::vector<std::string> vect)  //(std::map <string,int*> & m)
-{
+//(std::map <string,int*> & m)
+int ASM::fastReadDataBB(int **arr, std::vector<std::string> vect) {
   for (int i = 0; i < vectorOfFile.size(); i++) {
     if (i % 1000 == 0) cout << "fast read file " << i << endl;
     string fileName = vectorOfFile[i];
@@ -265,9 +273,9 @@ int ASM::fastReadDataBB(
   }
   return 0;
 }
-int ASM::fastReadDataNG(
-    int **arr, std::vector<std::string> vect)  //(std::map <string,int*> & m)
-{
+
+//(std::map <string,int*> & m)
+int ASM::fastReadDataNG(int **arr, std::vector<std::string> vect) {
   for (int i = 0; i < vectorOfFile.size(); i++) {
     if (i % 1000 == 0) cout << "fast read file " << i << endl;
     string fileName = vectorOfFile[i];
@@ -414,9 +422,8 @@ bool sort_pred(const pair<std::string, long> &left,
   return left.second > right.second;  // prefer more freq
 }
 
-int ASM::writeARFFFileThreshFreq(
-    int attrNum)  // trim the attr into attrNum, Sorted before trim.
-{
+// trim the attr into attrNum, Sorted before trim.
+int ASM::writeARFFFileThreshFreq(int attrNum) {
   std::vector<pair<std::string, long>> v_sortPair;
   for (map<string, long>::iterator it = map_sl.begin(); it != map_sl.end();
        it++) {
@@ -646,22 +653,34 @@ int ASM::isASMAble()
 */
 int ASM::objdumpToFile() {
   // listdataset_raw to listdataset_objasm
+  // result into .D files according to listdataset_raw
+  D("----Func ASM::objdumpToFile()----");
   ifstream iFile;
   iFile.open("./listdataset_raw");
   ofstream oFile;
   oFile.open("./listdataset_objasm");
   if (iFile.is_open() && oFile.is_open()) {
-    string rawFileName;
+    string rawFileName = "";
     while (getline(iFile, rawFileName)) {
-      commonLib::exec("objdump -D " + rawFileName + " > " + rawFileName + ".D");
-      // cout << commonLib::exec("date");
+      // D(rawFileName);
+      string outFileName = rawFileName;
+      outFileName.replace(0, 10, "output_pcd");
+      outFileName += ".D";
+      string comm = "objdump -D " + rawFileName + " > " + outFileName;
+      D(comm);
+      commonLib::exec(comm);
+      oFile << outFileName << "\n";
     }
   }
+  // string s = commonLib::exec("date");
+  // D(commonLib::exec("date"));
   iFile.close();
   oFile.close();
+  return 0;
 }
 int ASM::exportObjasmToPcd()  // export all of them
 {
+  D("----Func ASM::exportObjasmToPcd()----");
   // int i=0;
   ifstream iFile;
   iFile.open("./listdataset_objasm");
@@ -677,8 +696,8 @@ int ASM::exportObjasmToPcd()  // export all of them
       if (iFileObjasm.is_open()) {
         string line;
         while (std::getline(iFileObjasm, line)) {
-          D(line);
-          D("     " << lineToAsmSymbol(line));
+          // D(line);
+          // D("     " << lineToAsmSymbol(line));
           string incSymbol = lineToAsmSymbol(line);
           if (incSymbol.compare(INTERSECTION) == 0) {
             // longLine_ng += "";
@@ -714,6 +733,7 @@ int ASM::exportObjasmToPcd()  // export all of them
 
       // write 2 more case
       string fileOutPathNameNG = fileOutPathName + "_ng";
+      D(fileOutPathNameNG);
       oFile.open(fileOutPathNameNG.c_str());
       if (oFile.is_open()) {
         oFile << (longLine_ng) << endl;
@@ -723,6 +743,7 @@ int ASM::exportObjasmToPcd()  // export all of them
       oFile.close();
 
       string fileOutPathNameBB = fileOutPathName + "_bb";
+      D(fileOutPathNameBB);
       oFile.open(fileOutPathNameBB.c_str());
       if (oFile.is_open()) {
         oFile << (longLine_bb) << endl;
@@ -735,6 +756,7 @@ int ASM::exportObjasmToPcd()  // export all of them
   iFile.close();
   return 0;
 }
+
 
 int ASM::fsToArff(string fsName, int attrNum, int n) {
   cout << "start fsToArff" << endl;
@@ -770,6 +792,7 @@ int ASM::fsToArff(string fsName, int attrNum, int n) {
 
   if (svect.size() != attrNum) {
     cout << "(svect.size() != attrNum)" << endl;
+    cout << svect.size() << " " << attrNum << endl;
     return 1;
   }
   int vSize = attrNum;
@@ -836,5 +859,149 @@ int ASM::fsToArff(string fsName, int attrNum, int n) {
     cout << "problem open out file" << endl;
   }
   oFile.close();
+  return 0;
+}
+
+
+//To read meta file and output fsarff
+int ASM::ToFsarffBB(long batchSize) {
+
+  
+}
+//To read fsarff and output csv file with type to paste into Bigquery
+int ASM::unknow01(){
+  
+}
+
+// int ASM::TfidfToFileBB(long batchSize)
+int ASM::ToFsarffBB_old(long batchSize) {
+  std::setprecision(12);
+  int dataSetSize = vectorOfFile.size();
+  // vector to easier list the attr
+  std::vector<string> svect;
+  ifstream iFile;
+  iFile.open("output_csv/asm_basicblock_meta");
+  if (iFile.is_open()) {
+    string line;
+    while (getline(iFile, line)) {
+      svect.push_back(line);
+      map_sl[line] = 0;
+    }
+  }
+  iFile.close();
+  int *docLen = new int[dataSetSize];
+  for (int i = 0; i < dataSetSize; i++) {
+    docLen[i] = getSizeBB(vectorOfFile[i]) + 1;
+    /*
+    if(docLength[i]==0)
+      cout<<"ALERT ALL ZEROS "<<vectorOfFile[i]<<endl;*/
+  }
+  int iEnd = svect.size();
+  std::vector<attrValue> newVect;
+  int **arr = new int *[dataSetSize];
+  for (int i = 0; i < dataSetSize; i++) {
+    arr[i] = new int[batchSize]();
+  }
+  for (long progress = 0; progress < iEnd; progress += batchSize) {
+    cout << "progress = " << progress << endl;
+    cout << commonLib::exec("date");
+    for (int i = 0; i < dataSetSize; i++) {
+      std::fill(arr[i], arr[i] + batchSize, 0);
+      // readFromNgedsArr(arr[i],vectorOfFile[i] , bytes, lStart, batchSize,
+      // FileLinePointing[i] );
+    }
+    std::vector<string> vect;
+    for (int j = 0; ((j + progress) < iEnd) && (j < batchSize); j++) {
+      vect.push_back(svect[j + progress]);
+      // cout<<svect[j+progress]<<endl;
+      // cout<<(j+progress)<<endl;
+    }
+    int thisBatchSize = vect.size();
+
+    fastReadDataBB(arr, vect);
+    cout << "whatM" << endl;
+
+    cout << "start calculate column with word" << endl;
+    int *sumColWithTheWord = new int[thisBatchSize]();
+    std::fill(sumColWithTheWord, sumColWithTheWord + thisBatchSize, 0);
+    for (int i = 0; i < dataSetSize; i++) {
+      for (int j = 0; j < thisBatchSize; j++) {
+        if (arr[i][j] > 0) {
+          sumColWithTheWord[j]++;
+        }
+      }
+    }
+
+    cout << "start calculate tfidf with word" << endl;
+    double *diffTfidfArr = new double[thisBatchSize];
+    for (int j = 0; j < thisBatchSize; j++) {
+      if (sumColWithTheWord[j] == 0) {
+        diffTfidfArr[j] = 0.0;
+        continue;
+      }
+      double sumClass0 = 0.0;
+      double sumClass1 = 0.0;
+      for (int i = 0; i < dataSetSize; i++) {
+        double tf = (double)arr[i][j] / docLen[i];
+        double idf = log((double)dataSetSize / sumColWithTheWord[j]);
+        double tfidf = tf * idf;
+        if (i < NUMCLASS0)
+          sumClass0 += tfidf;
+        else
+          sumClass1 += tfidf;
+      }
+      double meanClass0 = sumClass0 / NUMCLASS0;
+      double meanClass1 = sumClass1 / NUMCLASS1;
+      if (meanClass0 > meanClass1)
+        diffTfidfArr[j] = meanClass0 - meanClass1;
+      else
+        diffTfidfArr[j] = meanClass1 - meanClass0;
+    }
+
+    delete[] sumColWithTheWord;
+    cout << "start add attrValue" << endl;
+
+    for (int j = 0; j < thisBatchSize; j++) {
+      attrValue a;
+      a.name = vect[j];
+      a.val = 100000 * diffTfidfArr[j];  // 100000 just to make them bigger and
+                                         // easier when merge
+      newVect.push_back(a);
+    }
+    delete[] diffTfidfArr;
+
+    std::sort(newVect.begin(), newVect.end());
+    if (newVect.size() > 20002)
+      newVect.erase(newVect.begin() + 20000, newVect.end());
+  }
+
+  cout << "start write file, a few minutes ^^.";
+  ofstream oFile;
+  string sFileName = "output_csv/tfidf_asm_basicblock.fsarff";
+  oFile.open(sFileName.c_str());
+  for (int i = 0; i < newVect.size(); i++) {
+    oFile << newVect[i].name << endl;
+    oFile << newVect[i].val << endl;
+  }
+  oFile.close();
+
+  /*
+  for(long progress=0;progress < iEnd;progress+=batchSize){
+    std::map <string,int*> m;
+    for(int i=0;((i+progress) < iEnd) && (i<batchSize);i++){
+      m[svect[i+progress]] = new int[dataSetSize];
+      cout<<svect[i+progress]<<endl;
+      cout<<(i+progress)<<endl;
+    }
+
+    for(int i=0;((i+progress) < iEnd) && (i<batchSize);i++){
+      delete [] m[svect[i+progress]];
+    }
+  }*/
+  for (int i = 0; i < dataSetSize; i++) {
+    delete[] arr[i];
+  }
+  delete[] arr;
+  delete[] docLen;
   return 0;
 }
