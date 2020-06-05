@@ -1,7 +1,9 @@
 #include "asm.h"
+
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
+
 #include <algorithm>
 #include <fstream>
 #include <iomanip>
@@ -11,6 +13,7 @@
 #include <sstream>
 #include <string>
 #include <vector>
+
 #include "commonLib.h"
 #include "stdpatch.h"
 using namespace patch;
@@ -757,7 +760,6 @@ int ASM::exportObjasmToPcd()  // export all of them
   return 0;
 }
 
-
 int ASM::fsToArff(string fsName, int attrNum, int n) {
   cout << "start fsToArff" << endl;
   cout << fsName << " - " << attrNum << " - " << n << endl;
@@ -862,15 +864,34 @@ int ASM::fsToArff(string fsName, int attrNum, int n) {
   return 0;
 }
 
-
-//To read meta file and output fsarff
+// To read meta file and output fsarff
 int ASM::ToFsarffBB(long batchSize) {
-
-  
 }
-//To read fsarff and output csv file with type to paste into Bigquery
-int ASM::unknow01(){
-  
+
+// To read fsarff and output csv file with type to paste into Bigquery
+int ASM::unknow01() {}
+
+int ASM::ToCSVWithSchema(){
+  // To CSVwithSchema
+  /*
+  1. read meta for batchSize, which is should be <= 10000?
+  1.1 if > 10000, we may have to count freq of them and then sort
+  2. loop read all file to an array
+  //*/
+
+  //read meta
+  std::setprecision(12);
+  std::vector<string> svect;
+  ifstream iFile;
+  iFile.open("output_csv/asm_basicblock_meta");
+  if (iFile.is_open()) {
+    string line;
+    while (getline(iFile, line)) {
+      svect.push_back(line);
+      map_sl[line] = 0;
+    }
+  }
+  iFile.close();
 }
 
 // int ASM::TfidfToFileBB(long batchSize)

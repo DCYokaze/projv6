@@ -2,6 +2,7 @@
 #define _ASM_H_
 #include <stdio.h>
 #include <stdlib.h>
+
 #include <algorithm>
 #include <fstream>
 #include <iostream>
@@ -10,6 +11,7 @@
 #include <sstream>
 #include <string>
 #include <vector>
+
 #include "commonLib.h"
 #include "stdpatch.h"
 
@@ -81,6 +83,7 @@ class ASM {
   int ToFsarffBB(long);
   int ToFsarffBB_old(long);
   int unknow01();
+  int ToCSVWithSchema();
 };
 
 /*
